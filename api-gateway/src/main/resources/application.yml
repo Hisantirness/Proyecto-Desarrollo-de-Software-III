@@ -1,0 +1,17 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true # Habilita rutas automáticas basadas en nombres de servicio en Eureka
+          lower-case-service-id: true # Convierte nombres de servicio a minúsculas (EJ: AUTH-SERVICE -> /auth-service/**)
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/

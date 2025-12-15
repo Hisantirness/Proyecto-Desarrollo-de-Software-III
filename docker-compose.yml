@@ -1,0 +1,124 @@
+version: '3.8'
+
+services:
+  # ----------------------------
+  # INFRAESTRUCTURA
+  # ----------------------------
+  mysqldb:
+    image: mysql:8.0
+    container_name: barberia-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: db_catalog
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - barberia-network
+
+  service-registry:
+    build:
+      context: .
+      dockerfile: service-registry/Dockerfile
+    container_name: service-registry
+    ports:
+      - "8761:8761"
+    networks:
+      - barberia-network
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
+    container_name: auth-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/db_auth?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: password
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+    depends_on:
+      - mysqldb
+      - service-registry
+    networks:
+      - barberia-network
+
+  # ----------------------------
+  # MICROSERVICIOS
+  # ----------------------------
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+      SPRING_CLOUD_GATEWAY_DISCOVERY_LOCATOR_ENABLED: "true"
+    depends_on:
+      - service-registry
+    networks:
+      - barberia-network
+
+  catalog-service:
+    build:
+      context: .
+      dockerfile: catalog-service/Dockerfile
+    container_name: catalog-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/db_catalog?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: password
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+    depends_on:
+      - mysqldb
+      - service-registry
+    networks:
+      - barberia-network
+
+  booking-service:
+    build:
+      context: .
+      dockerfile: booking-service/Dockerfile
+    container_name: booking-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/db_booking?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: password
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+    depends_on:
+      - mysqldb
+      - service-registry
+    networks:
+      - barberia-network
+
+  frontend-service:
+    build:
+      context: .
+      dockerfile: frontend-service/Dockerfile
+    container_name: frontend-service
+    ports:
+      - "8084:8084"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+      BACKEND_GATEWAY_URL: http://api-gateway:8080
+    depends_on:
+      - api-gateway
+      - service-registry
+    networks:
+      - barberia-network
+
+volumes:
+  mysql-data:
+
+
+networks:
+  barberia-network:
+    driver: bridge

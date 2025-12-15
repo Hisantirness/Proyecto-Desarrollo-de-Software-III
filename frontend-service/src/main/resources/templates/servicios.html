@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Nuestros Servicios</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+        }
+
+        .list-group-item {
+            background-color: #2c2c2c;
+            color: #fff;
+            border: 1px solid #444;
+        }
+
+        .text-gold {
+            color: #c5a059;
+        }
+
+        .badge-gold {
+            background-color: #c5a059;
+            color: #000;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Barbería The One</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/barberos">Barberos</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/servicios">Servicios</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/citas">Citas</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h2 class="text-center mb-4 text-gold">Servicios y Precios</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center"
+                        th:each="servicio : ${servicios}">
+                        <div>
+                            <h5 class="mb-1" th:text="${servicio.nombre}">Corte</h5>
+                            <small th:text="'Duración: ' + ${servicio.duracionMinutos} + ' mins'">30 mins</small>
+                        </div>
+                        <span class="badge badge-gold rounded-pill fs-6"
+                            th:text="'$' + ${servicio.precio}">$15.00</span>
+                    </li>
+                </ul>
+                <!-- Si no hay servicios -->
+                <div th:if="${error}" class="alert alert-danger mt-3" th:text="${error}"></div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

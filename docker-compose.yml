@@ -35,15 +35,11 @@ services:
     ports:
       - "8081:8081"
     environment:
+      JAVA_TOOL_OPTIONS: "-Xmx256m -Xms128m"
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/db_auth?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: password
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
-    depends_on:
-      - mysqldb
-      - service-registry
-    networks:
-      - barberia-network
 
   # ----------------------------
   # MICROSERVICIOS
@@ -56,12 +52,27 @@ services:
     ports:
       - "8080:8080"
     environment:
+      JAVA_TOOL_OPTIONS: "-Xmx256m -Xms128m"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
       SPRING_CLOUD_GATEWAY_DISCOVERY_LOCATOR_ENABLED: "true"
+      # FIX MANUAL ROUTES
+      SPRING_CLOUD_GATEWAY_ROUTES_0_ID: auth-service
+      SPRING_CLOUD_GATEWAY_ROUTES_0_URI: http://auth-service:8081
+      SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0: Path=/auth-service/**
+      SPRING_CLOUD_GATEWAY_ROUTES_0_FILTERS_0: StripPrefix=1
+      SPRING_CLOUD_GATEWAY_ROUTES_1_ID: catalog-service
+      SPRING_CLOUD_GATEWAY_ROUTES_1_URI: http://catalog-service:8082
+      SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0: Path=/catalog-service/**
+      SPRING_CLOUD_GATEWAY_ROUTES_1_FILTERS_0: StripPrefix=1
+      SPRING_CLOUD_GATEWAY_ROUTES_2_ID: booking-service
+      SPRING_CLOUD_GATEWAY_ROUTES_2_URI: http://booking-service:8083
+      SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0: Path=/booking-service/**
+      SPRING_CLOUD_GATEWAY_ROUTES_2_FILTERS_0: StripPrefix=1
     depends_on:
       - service-registry
     networks:
       - barberia-network
+    restart: on-failure
 
   catalog-service:
     build:
@@ -71,6 +82,7 @@ services:
     ports:
       - "8082:8082"
     environment:
+      JAVA_TOOL_OPTIONS: "-Xmx256m -Xms128m"
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/db_catalog?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: password
@@ -80,6 +92,7 @@ services:
       - service-registry
     networks:
       - barberia-network
+    restart: on-failure
 
   booking-service:
     build:
@@ -89,6 +102,7 @@ services:
     ports:
       - "8083:8083"
     environment:
+      JAVA_TOOL_OPTIONS: "-Xmx256m -Xms128m"
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/db_booking?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: password
@@ -98,6 +112,7 @@ services:
       - service-registry
     networks:
       - barberia-network
+    restart: on-failure
 
   frontend-service:
     build:
@@ -107,6 +122,7 @@ services:
     ports:
       - "8084:8084"
     environment:
+      JAVA_TOOL_OPTIONS: "-Xmx256m -Xms128m"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
       BACKEND_GATEWAY_URL: http://api-gateway:8080
     depends_on:
@@ -114,6 +130,7 @@ services:
       - service-registry
     networks:
       - barberia-network
+    restart: on-failure
 
 volumes:
   mysql-data:

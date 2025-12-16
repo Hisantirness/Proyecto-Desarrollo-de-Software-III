@@ -1,12 +1,8 @@
-# 💈 Sistema de Gestión de Barbería - "The One"
+# Sistema de Gestión de Barbería - "The One"
 
-> **Proyecto Final - Desarrollo de Software III**
-> 
-> **Facultad de Ingeniería - Tecnología en Sistemas - Universidad del Valle**
+Plataforma integral para la gestión y agendamiento de citas en barberías, basada en una arquitectura escalable de **Microservicios** con **Spring Boot** y **Docker**.
 
-Este repositorio contiene la implementación completa de una plataforma de agendamiento de citas basada en **Microservicios**, **Spring Boot** y **Docker**.
-
-## 👥 Equipo de Desarrollo
+## Equipo de Ingeniería
 *   **Santiago Villa Salazar**
 *   **Edgar Fabian Rueda Colonia**
 *   **Manuel Alexander Serna Jaraba**
@@ -14,57 +10,57 @@ Este repositorio contiene la implementación completa de una plataforma de agend
 
 ---
 
-## 🚀 Guía de Inicio Rápido (Para el Docente)
+## Guía de Despliegue
 
-El proyecto está totalmente dockerizado. Para ejecutarlo, solo requiere tener instalado **Docker Desktop**.
+El sistema está diseñado para ser agnóstico del entorno mediante contenedorización. Para ejecutar la suite completa en un entorno local o de servidor:
 
-### 1. Despliegue del Sistema
-Abra una terminal en la raíz del proyecto y ejecute:
+### 1. Inicialización de Servicios
+Desde la raíz del proyecto, ejecute el orquestador:
 
 ```bash
-docker compose up --build
+docker compose up --build -d
 ```
 
-_Espere aproximadamente 1-2 minutos mientras se descargan las imágenes, se compilan los servicios y se inician las bases de datos._
+_Este comando compilará los artefactos, construirá las imágenes Docker e iniciará el cluster de microservicios en segundo plano._
 
-### 2. Acceso a la Aplicación
-Una vez finalizado el despliegue, el sistema estará disponible en:
+### 2. Acceso a la Plataforma
+Una vez que el health-check de los servicios sea positivo, el portal web estará disponible en:
 
-👉 **[http://localhost:8084](http://localhost:8084)**
+**[http://localhost:8084](http://localhost:8084)**
 
 ---
 
-## 🔑 Credenciales de Prueba (Demo)
+## Credenciales de Acceso
 
-Para facilitar la revisión, el sistema ya cuenta con usuarios precargados en la base de datos:
+El sistema se despliega con un conjunto de datos semilla para pruebas de aceptación:
 
-| Rol | Usuario (Email) | Contraseña | Funcionalidad |
+| Perfil | Usuario | Contraseña | Capacidades |
 | :--- | :--- | :--- | :--- |
-| **Administrador** | `admin@barberia.com` | `admin123` | Puede gestionar citas (Aceptar/Rechazar) y ver el panel global. |
-| **Cliente** | `user@test.com` | `123456` | Puede ver barberos, servicios y agendar citas personales. |
+| **Administrador** | `admin@barberia.com` | `admin123` | Gestión de agenda global, aprobación de citas y control de catálogo. |
+| **Cliente** | `user@test.com` | `123456` | Exploración de servicios, selección de profesionales y reserva de turnos. |
 
-> **Nota:** También puede registrar un nuevo usuario desde la opción **"Registrarse"** en la pantalla de inicio.
+> **Nota:** El sistema permite el auto-registro de nuevos usuarios desde el portal de inicio.
 
 ---
 
-## 🏗️ Arquitectura del Sistema
+## Arquitectura de Software
 
-El proyecto implementa los siguientes patrones de microservicios:
+La solución implementa una arquitectura distribuida robusta utilizando los siguientes componentes:
 
-*   **API Gateway (Puerto 8080):** Centraliza el tráfico y enruta peticiones.
-*   **Service Discovery (Eureka - Puerto 8761):** Registro dinámico de instancias.
-*   **Microservicios de Dominio:**
-    *   `auth-service`: Autenticación y Usuarios.
-    *   `catalog-service`: Gestión de Barberos y Servicios.
-    *   `booking-service`: Lógica de reservas y disponibilidad.
-*   **Frontend (Puerto 8084):** Interfaz web renderizada con Thymeleaf.
+*   **API Gateway (Spring Cloud Gateway):** Punto de entrada único que gestiona el enrutamiento, seguridad perimetral y balanceo de carga.
+*   **Service Discovery (Netflix Eureka):** Registro y descubrimiento dinámico de instancias para alta disponibilidad.
+*   **Microservicios de Negocio:**
+    *   `auth-service`: Gestión de identidad y control de acceso.
+    *   `catalog-service`: Administración de inventario de profesionales y servicios.
+    *   `booking-service`: Motor de reglas de negocio para reservas y validación de disponibilidad.
+*   **Frontend Service:** Aplicación web renderizada en servidor (SSR) con Thymeleaf.
 
-### 💾 Base de Datos
+### Base de Datos
 Se utiliza **MySQL 8.0** en contenedores separados para cada servicio, garantizando el principio de *Database per Service*.
 
 ---
 
-## 📂 Estructura del Repositorio
+## Estructura del Repositorio
 
 *   `/docker-compose.yml`: Orquestación de todos los contenedores.
 *   `/api-gateway`: Configuración del Gateway.
